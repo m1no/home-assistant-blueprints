@@ -32,6 +32,12 @@ blueprint:
       default: "google_en_com"
       selector:
         text:
+    tts_language:
+      name: Language
+      description: The language to use with the text-to-speech service.
+      default: "en"
+      selector:
+        text:
 
 fields:
   entity_id:
@@ -136,7 +142,14 @@ variables:
       tts.google_en_com
     {%- else -%}
       tts.{{ tts_hack }}
-    {%- endif -%}  
+    {%- endif -%}
+  lang_hack: !input tts_language
+  tts_language: >-
+    {%- if lang_hack is undefined or lang_hack== None or lang_hack == "" -%}
+      "en"
+    {%- else -%}
+      {{ lang_hack }}
+    {%- endif -%}
   # the state delay is used for forcing a wait after key state changes
   # since the Sonos integration seems to report state too early which can cause
   # audio being cut-off or volume changes being heard that shouldn't be.
@@ -216,6 +229,7 @@ sequence:
     data:
       entity_id: "{{ entity_group_leader }}"
       message: "{{ message }}"
+      language: "{{ tts_language }}"
 
   # not sure why, but setting the repeat doesn't always properly take
   # I can see it changing in the state  when the TTY goes the repeat
