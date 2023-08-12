@@ -130,7 +130,13 @@ variables:
     {%- else -%}
       {{ repeat }}
     {%- endif -%}
-  
+  tts_hack: !input tts_target
+  tts_engine: >-
+    {%- if tts_hack is undefined or tts_hack== None or tts_hack == "" -%}
+      tts.google_en_com
+    {%- else -%}
+      tts.{{ tts_hack }}
+    {%- endif -%}  
   # the state delay is used for forcing a wait after key state changes
   # since the Sonos integration seems to report state too early which can cause
   # audio being cut-off or volume changes being heard that shouldn't be.
@@ -206,7 +212,7 @@ sequence:
 
   # FINALLY the actual call to say the message
   - service: "tts.speak"
-    target: "tts.{{ tts_target }}"
+    target: "{{ tts_engine }}"
     data:
       entity_id: "{{ entity_group_leader }}"
       message: "{{ message }}"
