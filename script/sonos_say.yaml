@@ -26,18 +26,10 @@ blueprint:
     I recommend setting the mode to parallel if you will use this script on more than one speaker.
   domain: script
   input:
-    tts_service_name:
-      name: Text-To-Speech Service Name
-      description:
-        The text-to-speech service to use when saying the message. This must match your Home
-        Assistant configuration.
-      default: "google_translate_say"
-      selector:
-        text:
-    tts_language:
-      name: Language
-      description: The language to use with the text-to-speech service.
-      default: "en"
+    tts_target:
+      name: Target Service
+      description: The language target service to use with the text-to-speech service.
+      default: "google_en_com"
       selector:
         text:
 
@@ -138,24 +130,7 @@ variables:
     {%- else -%}
       {{ repeat }}
     {%- endif -%}
-
-  # oddly you can't get blueprint inputs directly into jina so . . .
-  # 1) putting service into a variable to verify values and provide default
-  tts_hack: !input tts_service_name
-  tts_engine: >-
-    {%- if tts_hack is undefined or tts_hack== None or tts_hack == "" -%}
-      tts.google_translate_say
-    {%- else -%}
-      tts.{{ tts_hack }}
-    {%- endif -%}
-  # 2) putting language into a variable to verify values and provide default
-  lang_hack: !input tts_language
-  tts_language: >-
-    {%- if lang_hack is undefined or lang_hack== None or lang_hack == "" -%}
-      "en"
-    {%- else -%}
-      {{ lang_hack }}
-    {%- endif -%}
+  
   # the state delay is used for forcing a wait after key state changes
   # since the Sonos integration seems to report state too early which can cause
   # audio being cut-off or volume changes being heard that shouldn't be.
@@ -230,11 +205,11 @@ sequence:
       is_volume_muted: false
 
   # FINALLY the actual call to say the message
-  - service: "{{ tts_engine }}"
+  - service: "tts.speak"
+    target: "tts.{{ tts_target }}"
     data:
       entity_id: "{{ entity_group_leader }}"
       message: "{{ message }}"
-      language: "{{ tts_language }}"
 
   # not sure why, but setting the repeat doesn't always properly take
   # I can see it changing in the state  when the TTY goes the repeat
