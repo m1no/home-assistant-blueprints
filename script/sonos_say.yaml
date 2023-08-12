@@ -225,7 +225,8 @@ sequence:
 
   # FINALLY the actual call to say the message
   - service: "tts.speak"
-    target: "{{ tts_engine }}"
+    target: 
+      entity_id: "{{ tts_engine }}"
     data:
       entity_id: "{{ entity_group_leader }}"
       message: "{{ message }}"
